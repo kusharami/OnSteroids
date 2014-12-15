@@ -75,7 +75,8 @@ void GameObject::CalcInertia()
 	if (mass > .0 && shape != NULL)
 	{
 		Vector2f* v = shape->vertices;
-		int cnt = shape->vertexCount;
+		int cnt
+		{shape->vertexCount};
 		for (int i = cnt - 1, j = 0; j < cnt; i = j++)
 		{
 			Vector2f& p1 = v[i];

@@ -13,6 +13,8 @@
 
 #include "engine/AssetManager.h"
 
+#include <exception>
+
 // многоугольник фотона
 static const Vector2f photonPoints[] =
 {
@@ -242,12 +244,12 @@ void OnSteroidsActivity::Initialize()
 			numBuffer->SetColor(0xAAAAFFAA);
 
 			state = STATE_GAMESTART;
-		} catch (void* e)
+		} catch (std::exception&)
 		{
 			state = STATE_ERROR;
 		}
 		free(buf);
-	} catch (void* e)
+	} catch (std::exception&)
 	{
 		state = STATE_ERROR;
 	}

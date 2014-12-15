@@ -12,7 +12,8 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#include <math.h>
+#include <cstdint>
+#include <cmath>
 
 // константа для перевода градусов в радианы
 #define RADIAN ((1.0 / 180.0) * M_PI)

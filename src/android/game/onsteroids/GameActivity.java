@@ -17,11 +17,11 @@ import android.view.WindowManager;
 
 public class GameActivity extends Activity implements GLSurfaceView.Renderer
 {	
-//	static
-//	{
-//		System.loadLibrary("OnSteroids"); 
-//	}
-//	
+	static
+	{
+		System.loadLibrary("OnSteroids"); 
+	}
+	
 	public GLSurfaceView view;
 	
 	@Override
@@ -54,7 +54,9 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer
 
 	@Override
 	public void onDrawFrame(GL10 gl)
-	{
+	{		
+//		processKeyEvents();
+//		processMotionEvents();
 		nativeDrawFrame();
 	}
 
@@ -83,55 +85,125 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer
 		view = new GLSurfaceView(this);
 		view.setRenderer(this);
 		
-		System.loadLibrary("OnSteroids"); 
-		
 		nativeInitialize();
 
 		setContentView(view);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 	}
+//	
+//	ArrayList<KeyEvent> keyEvents = new ArrayList<KeyEvent>();
+//	ArrayList<MotionEvent> motionEvents = new ArrayList<MotionEvent>();
+//	
+//	void processKeyEvents()
+//	{
+//		ByteBuffer data = this.keyData;
+//		synchronized (keyEvents)
+//		{
+//			for(KeyEvent event : keyEvents)
+//			{
+//				data.position(0);
+//				int action = event.getAction();
+//				data.putInt(event.getDeviceId());		// 4
+//				data.putInt(event.getSource());  		// 4
+//				data.putInt(action);					// 4
+//			    data.putInt(event.getKeyCode());		// 4
+//				data.putInt(event.getUnicodeChar());	// 4
+//				data.putLong(event.getDownTime());		// 8
+//			    data.putLong(event.getEventTime());		// 8
+//			    data.putInt(event.getMetaState());		// 4
+//				
+//			    nativeKeyEvent(data.array());		    		
+//			}
+//			
+//			keyEvents.clear();
+//		}
+//	}
+//	
+//	void processMotionEvents()
+//	{
+//		ByteBuffer data = this.touchData;
+//		synchronized (motionEvents)
+//		{
+//			for(MotionEvent event : motionEvents)
+//			{
+//				data.position(0);
+//				int action = event.getAction();	
+//				int actionMasked = action & MotionEvent.ACTION_MASK;
+//				data.putInt(action);		// 4
+//				data.putInt(actionMasked);	// 4
+//				data.putInt((action & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT); // 4
+//				
+//				int cnt = event.getPointerCount();
+//				data.putInt(cnt);	// 4
+//				for (int i = 0; i < cnt; i++)
+//				{
+//					data.putInt(event.getPointerId(i)); // 4
+//					data.putFloat(event.getX(i));		// 4
+//					data.putFloat(event.getY(i));		// 4
+//				}
+//				
+//				nativeTouchEvent(touchData.array());
+//			}
+//			
+//			motionEvents.clear();
+//		}
+//	}
 	
 	@SuppressLint("NewApi") @Override
 	public boolean onKeyDown(int keyCode, KeyEvent msg)
 	{
-		synchronized (view)
+		synchronized (keyData)
 		{
+//			keyEvents.add(msg);
+//			return true;
 			ByteBuffer data = this.keyData;
 			data.position(0);
+			int action = msg.getAction();
 			data.putInt(msg.getDeviceId());		// 4
 			data.putInt(msg.getSource());  		// 4
+			data.putInt(action);					// 4
+		    data.putInt(msg.getKeyCode());		// 4
 			data.putInt(msg.getUnicodeChar());	// 4
-			data.putLong(msg.getDownTime());	// 8
-		    data.putLong(msg.getEventTime());	// 8
-		    data.putInt(msg.getMetaState());	// 4
+			data.putLong(msg.getDownTime());		// 8
+		    data.putLong(msg.getEventTime());		// 8
+		    data.putInt(msg.getMetaState());		// 4
 			
-			return nativeKeyDown(keyCode, data.array()) != 0;
+		    nativeKeyEvent(data.array());	
+		    return true;
 		}
 	}
 	
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent msg)
 	{
-		synchronized (view)
+		synchronized (keyData)
 		{
-			ByteBuffer data = this.keyData;			
+//			keyEvents.add(msg);
+//			return true;
+			ByteBuffer data = this.keyData;
 			data.position(0);
+			int action = msg.getAction();
 			data.putInt(msg.getDeviceId());		// 4
 			data.putInt(msg.getSource());  		// 4
+			data.putInt(action);					// 4
+		    data.putInt(msg.getKeyCode());		// 4
 			data.putInt(msg.getUnicodeChar());	// 4
-			data.putLong(msg.getDownTime());	// 8
-		    data.putLong(msg.getEventTime());	// 8
-		    data.putInt(msg.getMetaState());	// 4
+			data.putLong(msg.getDownTime());		// 8
+		    data.putLong(msg.getEventTime());		// 8
+		    data.putInt(msg.getMetaState());		// 4
 			
-			return nativeKeyUp(keyCode, data.array()) != 0;
+		    nativeKeyEvent(data.array());	
+		    return true;
 		}
 	}
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		synchronized (view)
+		synchronized (touchData)
 		{
+//			motionEvents.add(event);
+//			return true;
 			ByteBuffer data = this.touchData;
 			data.position(0);
 			int action = event.getAction();	
@@ -149,11 +221,12 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer
 				data.putFloat(event.getY(i));		// 4
 			}
 			
-			return nativeTouchEvent(touchData.array()) != 0;
+			nativeTouchEvent(touchData.array());
+			return true;
 		}
 	}
 	
-	ByteBuffer keyData = ByteBuffer.allocateDirect(4 + 4 + 4 + 8 + 8 + 4).order(ByteOrder.nativeOrder());
+	ByteBuffer keyData = ByteBuffer.allocateDirect(4 + 4 + 4 + 4 + 4 + 8 + 8 + 4).order(ByteOrder.nativeOrder());
 	ByteBuffer touchData = ByteBuffer.allocateDirect(4 + 4 + 4 + 4 + (4 + 4 + 4) * 10).order(ByteOrder.nativeOrder());
 	
 	private native void nativeInitialize();
@@ -170,9 +243,7 @@ public class GameActivity extends Activity implements GLSurfaceView.Renderer
 	
 	private static native void nativeResume();
 	
-	private static native int nativeKeyDown(int keyCode, byte[] data);
+	private static native void nativeKeyEvent(byte[] data);
 	
-	private static native int nativeKeyUp(int keyCode, byte[] data);
-	
-	private static native int nativeTouchEvent(byte[] data);
+	private static native void nativeTouchEvent(byte[] data);
 }
