@@ -1,0 +1,1 @@
+javah -classpath .\bin\classes\;h:\android-sdk-windows\platforms\android-18\android.jar -o test.h android.game.onsteroids.GameActivity
